@@ -51,8 +51,8 @@ public class MantarYetistirmeOrtami extends javax.swing.JFrame implements Serial
     private static int DATA_RATE = 9600;
 
     public void initialize() {
-        System.setProperty("gnu.io.rxtx.SerialPorts", getComPortName());        
-        CommPortIdentifier portId = null;        
+        System.setProperty("gnu.io.rxtx.SerialPorts", getComPortName());
+        CommPortIdentifier portId = null;
         Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
 
         while (portEnum.hasMoreElements()) {
@@ -66,12 +66,12 @@ public class MantarYetistirmeOrtami extends javax.swing.JFrame implements Serial
             }
         }
         if (portId == null) {
-            
-            JOptionPane.showMessageDialog(null," PORTUNA BAĞLI CİHAZ YOK!","HATA",JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(null, " PORTUNA BAĞLI CİHAZ YOK!", "HATA", JOptionPane.ERROR_MESSAGE);
             System.out.println("PORTA BAĞLI CİHAZ YOK!");
             return;
         }
-System.out.println(portId);
+        System.out.println(portId);
         try {
             serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
 
@@ -82,7 +82,7 @@ System.out.println(portId);
             output = serialPort.getOutputStream();
 
             serialPort.addEventListener(this);
-           serialPort.notifyOnDataAvailable(true);
+            serialPort.notifyOnDataAvailable(true);
         } catch (Exception e) {
             System.out.println("TURGAY");
             System.err.println(e.toString());
@@ -95,13 +95,15 @@ System.out.println(portId);
             serialPort.close();
         }
     }
-DefaultListModel model = new DefaultListModel();  
-DefaultListModel model2 = new DefaultListModel();
-Database db = new Database();
-        VeriModel veriModel = new VeriModel();
+    DefaultListModel model = new DefaultListModel();
+    DefaultListModel model2 = new DefaultListModel();
+    Database db = new Database();
+    //VeriModel veriModel;
+    String sicaklik = "0";
+    String nem = "0";
     @Override
     public synchronized void serialEvent(SerialPortEvent oEvent) {
-        
+
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try {
                 if (input.ready() == true) {
@@ -109,44 +111,40 @@ Database db = new Database();
                     //ARDUINO dan SERİ PORTTAN GELEN VERİ BURADAN KONTROL EDİLİR
                     //**********************************************
                     inputLine = input.readLine();
-                    Object node =inputLine;
+                    //Object node = inputLine;
                     //String nodee = node.toString();
                     String veri = inputLine;
-                    
-                    
-                    if(veri.contains("Degree")){
+                    System.out.println(veri);
+                    if (veri.contains("Degree")) {
                         model.addElement(veri);
-                        veriModel.setSicakik(veri);
+                        sicaklik = veri;
+                    } else {
+                        model2.addElement(veri);
+                        nem = veri;
                     }
-                    else{
-                       model2.addElement(veri);
-                       veriModel.setNem(veri);
-                    }
-                   //db.veriKaydet(veriModel);
-                   
-                  
+                    //db.veriKaydet(veriModel);
+
                     System.out.println("OKUNAN VERİ:" + inputLine);
-                  
+
                 } else {
-              }
+                }
             } catch (Exception e) {
                 System.err.println(e.toString());
             }
         }
-        
-        db.insert(veriModel);
+
+        db.insert(sicaklik,nem);
     }
-    
 
     public MantarYetistirmeOrtami() {
         initComponents();
         PortListele();
-        
+
     }
 
-    void PortListele(){
-    jComboBox1.removeAllItems();        
-        System.setProperty("gnu.io.rxtx.SerialPorts", getComPortName());  
+    void PortListele() {
+        jComboBox1.removeAllItems();
+        System.setProperty("gnu.io.rxtx.SerialPorts", getComPortName());
         Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
         while (portEnum.hasMoreElements()) {
             CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
@@ -155,7 +153,7 @@ Database db = new Database();
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -179,6 +177,7 @@ Database db = new Database();
         jLabel5 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList<>();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SERİ PORT VERİ OKU");
@@ -247,6 +246,13 @@ Database db = new Database();
         jList2.setModel(model2);
         jScrollPane3.setViewportView(jList2);
 
+        jButton5.setText("Veritabanı Listele");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -266,10 +272,6 @@ Database db = new Database();
                         .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(txtReadData, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(263, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
@@ -282,26 +284,37 @@ Database db = new Database();
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(7, 7, 7)
                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(114, 114, 114))))
+                        .addGap(18, 18, 18))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(txtReadData, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton5))
+                .addGap(114, 114, 114))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtComPortName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(20, 20, 20)
-                        .addComponent(jLabel2))
-                    .addComponent(txtReadData, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtComPortName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(20, 20, 20)
+                                .addComponent(jLabel2))
+                            .addComponent(txtReadData, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(jButton5)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -339,17 +352,17 @@ Database db = new Database();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
- 
-    
+
+
     private void btnConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConnectActionPerformed
         setComPortName(txtComPortName.getText());
         DATA_RATE = Integer.parseInt(txtBoundRate.getText());
         TIME_OUT = Integer.parseInt(txtTimeOut.getText());
         btnConnect.setText("BAĞLAN");
-  
+
         initialize();
- 
-        txtReadData.setText(txtComPortName.getText()+" PORT AÇILDI\n");
+
+        txtReadData.setText(txtComPortName.getText() + " PORT AÇILDI\n");
         txtReadData.setText(txtReadData.getText() + "Veri Bekleniyor...\n");
         model.clear();
 
@@ -373,9 +386,9 @@ Database db = new Database();
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-         try {
+        try {
             // TODO add your handling code here:
-            String serialMessage = "Bq";
+            String serialMessage = "B";
             output.write(serialMessage.getBytes());
         } catch (IOException ex) {
             Logger.getLogger(MantarYetistirmeOrtami.class.getName()).log(Level.SEVERE, null, ex);
@@ -386,6 +399,11 @@ Database db = new Database();
         // TODO add your handling code here:
         PortListele();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        new VeritabaniListe().setVisible(true);
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     public static void main(String args[]) {
 
@@ -427,6 +445,7 @@ Database db = new Database();
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
